@@ -15,7 +15,6 @@ Working
 
 =======================================================================
 
-
 BEST PRACTICES UTILIZED
 
 - write the correct data structure for the given problem
@@ -31,17 +30,16 @@ BEST PRACTICES UTILIZED
 - consistent coding style and naming convention : either only use camel case or snake or one of your choice, but dont change
 - there should be NO code duplication, duplicate code should be entered in a function and that function should be called where needed
 
-
 =======================================================================
 1.1 Overview of full stack application
-  
+
     WEB UI <=REST service=> WEB SERVER <=> DB Persistence
 
     web ui : html, css, sass, tailwind, javascript, typescript, framework (REACT)
     REST services : works on HTTP connection : most common way for web ui to communicate with a server
       (any kind of client can communicate with any kind of server)
     Web server app : spring boot, MS ASP.NET, Python, Node.js etc (tech used here is invisible to the client : abstraction)
-    persistence/db : Relational(MYSQL, PostgreSQL), NOSQL (mongoDB, Cassandra), cloud storage(AWS s3), mainframe (IBM),  
+    persistence/db : Relational(MYSQL, PostgreSQL), NOSQL (mongoDB, Cassandra), cloud storage(AWS s3), mainframe (IBM),
 
 1.2 Understanding REST services
 
