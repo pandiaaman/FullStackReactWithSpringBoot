@@ -48,3 +48,51 @@ BEST PRACTICES UTILIZED
     the idea is to have similar functioning for data apps as to the web apps
     like in the web apps, each unique page has its own unique url => in data app(rest) each data endpoint has its own unique url
     a client sends an HTTP request message to the REST service and the REST service returns an HTTP response message
+    HTTP request :
+      -Header :
+        POST /employees HTTP/1.1 => HTTP verb (GET,PUT,POST,DELETE,PATCH) | HTTP request version
+        Host : someExample.com => the host url we are trying to access for the request
+        content-type : application/json => type of the body content
+        accept : application/json =>what format we accept the returned data
+        content-length : 27 => length of the message
+
+      -{name : "aman", age : 25}
+
+    HTTP verbs : (CRUD operations)
+      1. GET : (read) : read a resource
+      2. POST : (create) : create a new resource from the request data
+      3. PUT : (update) : updates a resource from the request data
+      4. PATCH : (update)
+      5. DELETE : (delete) : deletes a resource
+
+    REST mainly communicates in JSON (java script standard object notation) : it contains the key value pair
+
+    we can change the format of data communicated to XML then we can simply put accept as application/xml and while recieving we
+    can also use @PostMapping(produces="application/xml", consumes="application/xml", value="/employees")
+
+    HTTP Response :
+      -Header :
+        HTTP/1.1 success 201 => status code of response, can be success(200), redirect(300), client error(400), server error(500)
+        Location 4 => the location where the new item has been inserted(this we can mention what to send in ResponseEntity)
+        content-type => application/json
+        content-length => 37
+        Date : 8 Aug 2023 18:34:11 IST
+
+        {id: 4, name : "aman", age:25} => body
+
+    Http status codes :
+      200 : OK
+      201 : Created
+      204 : no content
+      301 : permanently moved (redirection)
+      400 : bad request
+      401 : unauthorized / (unauthonticated)
+      403 : forbidden (not a valid user)
+      404 : page not found (resource not exists)
+      405 : mehtod not allowed (if we go for PUT where only POST is expected)
+      500 : internal server error (backend side issue)
+
+1.3 Creating client side content
+
+    HTML, CSS, JS(ES6/2015, dynamically typed), TS(descriptive, secure, statically typed)
+    framework : React (lightweight)
