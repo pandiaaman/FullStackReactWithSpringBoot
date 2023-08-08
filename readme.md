@@ -96,3 +96,11 @@ BEST PRACTICES UTILIZED
 
     HTML, CSS, JS(ES6/2015, dynamically typed), TS(descriptive, secure, statically typed)
     framework : React (lightweight)
+
+==================================================================================
+
+2.1 Creating a simple application using spring boot
+
+    app folder : contains pom.xml that has the dependencies needed for the app to run
+    src > main : java code and java resources
+    src > test : java test code
