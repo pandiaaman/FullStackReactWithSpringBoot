@@ -24,14 +24,14 @@ public class OreillyFullStackAppBakApplication {
 		//if found, it stores them in the ApplicationContext object (context)
 		ApplicationContext context = SpringApplication.run(OreillyFullStackAppBakApplication.class, args);
 		
-		//singleton beans
+		//singleton beans : only instantiated once
 		TrialCheckComponent myComponent = context.getBean("testComponent",TrialCheckComponent.class);
 		TrialCheckComponent myComponent1 = context.getBean("testComponent",TrialCheckComponent.class);
 		//above two gives us two references to the same bean, since singleton
 		boolean areSameBeans = (myComponent == myComponent1);
 		log.info("spring returns two references for same beans, if singleton :: {} ", areSameBeans);
 		
-		//prototype beans components
+		//prototype beans components : new object every time we call them
 		TrialPrototypeComponent protoComponent = context.getBean("protoComp",TrialPrototypeComponent.class);
 		TrialPrototypeComponent protoComponent1 = context.getBean("protoComp",TrialPrototypeComponent.class);
 		TrialPrototypeComponent protoComponent2 = context.getBean("protoComp",TrialPrototypeComponent.class);
