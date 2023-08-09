@@ -397,7 +397,7 @@ in java configuration, We use @Configuration and we use @Bean to annotate beans
         }
 
 5. Spring Boot techniques
-   ( dev :filters, interceptors, AOP, actuators, profiles, state management
+   ( dev :filters, interceptors, AOP, actuators, profiles, state management, advisors, error handlers, controllers, services, dto, repositories,
    security : oauth2 odic jwt okta,
    testing : unit, regression, integration, mockito, testcontainers, selenium,
    message queues : kafka
@@ -569,6 +569,93 @@ it can provide info as:
         http://localhost:8081/oreillydevapp/actuator/health
         http://localhost:8081/oreillydevapp/actuator/metrics
         http://localhost:8081/oreillydevapp/actuator/info
+
+6 Spring Data JPA
+
+6.1 understanding Spring data
+
+- spring boot provides excellent support to connect with multiple types of databases, be it relational, or non relational
+- spring provides us the declarative transaction management, which means that we do not exclusively need to commit the
+  transactions, or rollback them in case of errors, spring does this automatically, we only need to annotate the method
+  with @Transactional
+- spring automatic connection management : acquires/releases connections automatically
+- spring provides us with CrudRepository and JPARepository, that provide us with object mapping abstractions
+  spring also gives us the dynamic query creation :: findByName, findByRegion.
+
+  6.2 JPA (Java persistence API) :: standard ORM (object relational mapping) API
+  => implemented by Hibernate library (goes well with spring)
+
+        entity class => java class with its fields mapped to the table
+        entity manager class in JPA => fetches/saves entities to the database
+        entity manager factory =>creates and configures an entity manager so it can connect to db
+
+        dependency required :
+          spring-boot-starter-data-jpa
+
+        (adds hibernate as well)
+
+  ***
+
+        <configuration>
+          <properties>
+            <...>
+          </properties>
+          <session-factory>
+            <property name="connection.url"></property>
+            <property name="connection.username"></property>
+            <property name="connection.password"></property>
+            <property name="show-sql">true</property>
+            <property name="hbm2ddl.auto">update</property>
+          </session-factory>
+        </configuration>
+
+  ***
+
+        Configuration cfg = new Configuration("hibconf.cfg.xml");
+        SessionFactory factory = cfg.buildSessionFacotry();
+        Session session = factory.openSession();
+        Transaction tx = session.beginTransaction();
+
+        String str = "from Student order by marks";
+        Query query = session.createQuery(str);
+        List result = query.list();
+
+        tx.close();
+
+using JDBC with normal java
+
+    class.forName("mysql..cj..");
+    Connection con = DriverManager.getConnection(url, username, password);
+    String query = "select * from ... where valOne=?, valTwo=?";
+    PreparedStatement pst = con.prepareStatement(query);
+    pst.setString(1,"adsf");
+    pst.setInt(2,23);
+    ResultSet rs = pst.executeQuery();
+    while(rs.hasNext()){
+      ..rs.getString("");
+    }
+
+in spring, we have JDBC template, that can be used with DataSource object
+
+    @Configuration
+    class Conf{
+      @Bean
+      DataSource ds(){
+        DataSource ds = new DataSource();
+        ds.setUrl();
+        ds.setUsername();
+        ds.setPassword();
+
+        return ds;
+      }
+
+      @Bean
+      JDBCTemplate temp(){
+        JDBCTemplate temp = new JDBCTemplate();
+        temp.setDataSource(ds());
+
+      }
+    }
 
 ## =========================================================================================
 
