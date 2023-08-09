@@ -30,6 +30,15 @@ BEST PRACTICES UTILIZED
 - consistent coding style and naming convention : either only use camel case or snake or one of your choice, but dont change
 - there should be NO code duplication, duplicate code should be entered in a function and that function should be called where needed
 
+JAR vs WAR vs EAR
+
+    JAR : java archive file : file with java classes, associated metadata and resources like text, images etc combined
+      into a single file to execute application
+      can contain a built in server and hence can be run as a standalone java app
+    WAR : web archive file : contains files such as servlets, html, jsp and js etc.,necessary to develop web app
+    EAR : enterprise archive file : java EE file that packs one or more modules into a single archive to deploy them on app server
+      allows testing and devloping web apps easily
+
 =======================================================================
 1.1 Overview of full stack application
 
@@ -104,3 +113,8 @@ BEST PRACTICES UTILIZED
     app folder : contains pom.xml that has the dependencies needed for the app to run
     src > main : java code and java resources
     src > test : java test code
+
+2.2 Implementing a REST service
+
+    - client only communicates using the REST service, rest provides abstraction and hides important info from the server
+    - use @RestController and @RequestMapping with the controller
