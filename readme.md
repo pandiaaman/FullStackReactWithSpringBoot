@@ -118,3 +118,144 @@ JAR vs WAR vs EAR
 
     - client only communicates using the REST service, rest provides abstraction and hides important info from the server
     - use @RestController and @RequestMapping with the controller
+
+    application.properties or application.yml :
+
+    Spring boot apps connect to many resources such as
+      databases
+      message queues
+      cloud environments
+    we need to know where these resources are located, we can do this in JAVA code, but if these resources change location
+    then we need to recompile the java code after updating the location everytime
+    So we set the properties in text : application.properties or application.yml
+      these contain names of resources in them
+
+=========================================================================================
+3.1 Creating components and object(beans) in spring
+
+      REST service object -----> Business logic object -----> data access object
+
+      spring can create the above objects for us called beans
+      autowiring : the process of connecting these objects together
+
+      spring works on the logic of inversion of control, where the control of injecting and managing objects
+      in spring is held by the IOC container which gives us the lose coupling in spring
+
+      we can tell spring to create an object of a given class by using
+        @Component
+
+      @Controller, @RestController, @Service, @Repository all are subsets of @Component
+
+      when we define a class as @Component, we can create beans of that class
+      for ex
+        Student.java
+          @Component("stud")
+          class Student{}
+
+        config.xml
+          <context:annotation-config />
+
+        Main.java
+          class Main{
+            ApplicationContext context = new ClassPathXMLApplicationContext("config.xml");
+            Student st = context.getBean("stud");
+          }
+
+      We can also autowire the object
+
+        class Controller{
+          @Autowire
+          Service service;
+
+          ...
+          service.dosomething();
+        }
+      ---------------------------
+      When we use these annotations, spring automatically create the objects of these classes and store them
+      in IOC during application startup, there can be two types of loading :
+
+        Lazy loading
+        Fetch loading
+
+      The default scope of spring bean is singleton, that is it will be instantiated only once on the application startup
+      by default, spring uses eager loading, that is during startup only, all the beans are loaded.
+
+      Spring boot is actually a factory mechanism for creating beans
+
+      PROCESS:
+      when spring boot starts, it does "component scanning" where it looks for all classes in current package which are annotated with @component, once it finds it, it will automatically create an instance of that class during the startup,
+      this instance is called a bean, everytime it creates a bean, it provides it an ID, by default it is class name with
+      lowercase first letter.
+      then, on running the application, we have run method in the main class of project, when run is invoked, spring boot
+      will look into the pacakge and all sub packages where the run method class is, for component/service/controller classes.
+      if it finds any component classes, it will automatically create instance of these classes, called beans, stored in
+      application context, its an object that we get back.
+      so application context object contains the bean object, and the applicatonContext object will point to the context object created
+
+3.2 Beans scope and initialization
+
+    -Singleton : default in springboot : single instance created
+        our Rest controller, service classes, repositories, we only need one instance of these classes
+    -prototype : everytime we ask for a bean, we get a new instance
+
+    to specify : @scope("singleton") and @scope("prototype") can be used
+
+    The problem with singleton beans is that they all get instantiated during the application startup
+    if we want the beans to be instantiated only when called(required), we need LAZY initialization
+
+    we can do this by using @Lazy
+
+    scopes for beans available :
+    - singleton
+    - prototype : give me back a new instance everytime i ask for one
+    - request : (web) : a bean devoted for an incoming http request, bean lives only while the request is being processed
+    - session : (web) : a bean that lasts while the session lasts
+    - application : (web) : bean lives for the lifetime of appliation server, if we restart the server, bean is recreated
+
+3.3 Autowiring
+
+    -
+
+## =========================================================================================
+
+## +++++++++++++++++++++++++++++++++++++
+
+PROGRESSION ON THE APPLICATION
++++++++++++++++++++++++++++++++++++++++
+
+---
+
+---
+
+=> created root folder and attached git to it
+=> created backend spring application from either of the following options
+
+    - spring cli
+    - spring initialzr web app
+    - eclipse sts
+
+=> applied following dependencies while creating the app
+
+    - spring-starter-web
+    - spring-starter-test
+    - lombok
+    - spring-data-jpa
+    - postgres-driver
+    - devtools
+
+=> in the application.properties file, add the required lines for connecting to the driver
+
+    - spring.datasource.name
+    - spring.datasource.url
+    - spring.datasource.password
+    - spring.datasource.username
+    - spring.jpa.show-sql
+    - spring.hibernate.ddl-auto
+    - server.port
+    - server.servlet.context-path
+
+=> run the application to check if its connecting and running fine
+
+=> create an index.html to test the application url
+
+=> create the first controller class for trial testing the rest controller connection
