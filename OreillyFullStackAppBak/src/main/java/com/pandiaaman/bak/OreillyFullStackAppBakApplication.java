@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 import com.pandiaaman.bak.components.TrialCheckComponent;
+import com.pandiaaman.bak.components.TrialObjectForConf;
 import com.pandiaaman.bak.components.TrialPrototypeComponent;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  * 	@ComponentScan
  * 	@EnableConfiguration
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.pandiaaman.bak"})
 @Slf4j
 public class OreillyFullStackAppBakApplication {
 
@@ -36,10 +37,15 @@ public class OreillyFullStackAppBakApplication {
 		TrialPrototypeComponent protoComponent1 = context.getBean("protoComp",TrialPrototypeComponent.class);
 		TrialPrototypeComponent protoComponent2 = context.getBean("protoComp",TrialPrototypeComponent.class);
 		
+		
+		//getting object beans from configuration files
+		TrialObjectForConf ob = context.getBean("trialOb",TrialObjectForConf.class);
+		
 		log.info("*************************************************");
 		log.info("bak app started");
 		log.info(myComponent.toString());
-		log.info(myComponent1.toString()); //called here but notice the counter on creation is only called once, means the object is only called once
+		log.info("value from configration file : {} and {}", ob.getObvalOne(), ob.getObvalTwo());
+//		log.info(myComponent1.toString()); //called here but notice the counter on creation is only called once, means the object is only called once
 		
 		log.info("*************************************************");
 	}

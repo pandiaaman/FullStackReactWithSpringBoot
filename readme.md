@@ -214,7 +214,187 @@ JAR vs WAR vs EAR
 
 3.3 Autowiring
 
-    -
+    - if we have depenedency on object of one class then we need to autowire that class's object
+
+          @Controller
+          class Controller{
+            @Autowired
+            Service service;
+          }
+
+          @Service
+          class Service{
+            @Autowired
+            Repository repo;
+          }
+
+      above, controller needs service class and service class needs Repository class to fulfill its functionalities
+      Spring will inject bean of specified type into the field mentioned
+
+      Instead of autwiring the field, we can autowire the constructor, when spring will create the instance of the current
+      class it will realise that it needs to import the bean of the other class, so it will get it for us
+
+          class Service{
+            Repository repo;
+
+            @Autowired
+            public Service(Repository repository){
+              this.repo = repository;
+            }
+          }
+
+    - @Qualifier : what if we have multiple possible beans that can be injected
+
+      Suppose service is an interface and we have multiple implementations of service interface,
+      say, StudentService, TeacherService => both implements Service (interface)
+      now if we inject Service in the Controller, we need to tell which one to inject using Qualifier
+
+          class Controller{
+            @Autowired
+            @Qualifier("studentService")
+            Service service;
+
+          }
+
+      if we dont do this, we will get runtime error
+
+3.4 Autowiring a collection
+
+    - if we want we can autowire a collection or map of beans as well
+
+        @Component
+        class Service{
+          @Autowired
+          private Collection<Repository> repos; //will contain the pointers to repo objects
+        }
+
+3.5 Spring expression language
+
+    - it is used to inject values in the beans
+        @Component
+        class Student{
+          @Value("aman")
+          private String name;
+
+          @Value("#{5*10}")
+          private int marks;
+
+          @Value("#{ new java.util.Date() }")
+          private Date date;
+        }
+
+3.6 spring with CLI :: ApplicationArguments
+
+    - ApplicationArguments class help us to receive the arguments from command line
+    - we get multiple methods to access the optional and non optional arguments
+
+        getSourceArgs()  : raw args => no format
+        getOptionNames() :
+        getOptionValues(optionname)
+        getNonOptionArgs()
+
+
+        @Component
+        class BeanWithArgs{
+
+          @Autowired
+          public BeanWithArgs(ApplicationArguments args){
+              //to access args use args.getSourceArgs
+          }
+
+        }
+
+=========================================================================================
+
+4.  Configuration classes
+    In XML configuration, we define our beans as following :
+
+            <beans xmlns="...">
+              <bean class="com.pandiaaman.someclass" name="somename">
+                <property name="someproperty">value</property>
+                <property name="otherref" ref="somebeanref">
+              </bean>
+            </beans>
+
+    in this type we have setter injection as well as constructor injection
+    above was setter injection
+    to use constructor injection we use constructor-arg
+
+          <beans xmlns="..">
+            <bean class="com.pandiaaman.somepackage.someclass">
+              <constructor-arg index="0" value="v4"/>
+              <constructor-arg index="1" value="2"/>
+            </bean>
+          </beans>
+
+4.1 Defining a configuration class and beans
+in java configuration, We use @Configuration and we use @Bean to annotate beans
+
+        @Configuration
+        class Conf{
+
+          @Bean
+          public Student stud(){
+            Student s = new Student();
+            s.setName("aman");
+            s.setAge(25);
+
+            return s;
+          }
+
+        }
+
+        for class Student, we dont need to mention the @Component
+        to access from the main app file
+
+        Student st = context.getBean("stud", Student.class);
+
+- Configuration classes are special types of components
+  on startup spring boot scans for the components and configuration classes
+
+  To tell spring boot to look for configuration classes in some different pacakges as well
+
+          @SpringBootApplication(scanBasePackages={"mypkgOne","myPkgTwo"})
+          public class Application...
+
+  since the main class has @SpringBootApplication and it is configured of below three
+
+  - @Configuration
+  - @EnableAutoCongifuration
+  - @ComponentScan
+
+  we can also define beans in the main class
+
+  4.2 Managing dependencies in beans
+
+        <bean class="...RefClass" name="refBean">
+          <property name="valOne" value="2">
+        </bean>
+
+        <bean class="...MainClass" name="mainBean">
+          <property name="referenceBean" ref="refBean">
+        </bean>
+
+  in java configuration :
+
+        @Configuration
+        class confClass{
+
+          @Bean
+          public RefClass refBean(){
+            RefClass ob = new RefClass();
+            ob.setValOne(2);
+            return ob;
+          }
+
+          @Bean
+          public MainClass mainBean(){
+            MainClass ob = new MainClass();
+            ob.setRefClassVal(refBean());
+            return ob;
+          }
+
+        }
 
 ## =========================================================================================
 
