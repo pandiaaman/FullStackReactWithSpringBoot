@@ -396,6 +396,180 @@ in java configuration, We use @Configuration and we use @Bean to annotate beans
 
         }
 
+5. Spring Boot techniques
+   ( dev :filters, interceptors, AOP, actuators, profiles, state management
+   security : oauth2 odic jwt okta,
+   testing : unit, regression, integration, mockito, testcontainers, selenium,
+   message queues : kafka
+   deploy : git actions, ci cd, jenkins, docker, kubernetes, aws)
+
+5.1 setting application properties in spring boot using COMMAND LINE
+application.properties
+
+        name = "aman pandia"
+
+to use this property in bean class
+
+        @Component
+        class MyBean{
+
+          @Value("${name}")
+          private String name;
+        }
+
+- when the run method from the Main Application class is invoked, it looks for the application.properties / yml file
+  it looks in the root of the classpath by default, root of the classpath in maven is resources folder
+
+=> Spring boot lets us define application properties in multiple places such as
+(from higher to lower priority)
+
+- command line arguments
+- operating system environment variables
+- application properties outside jar
+- application properties inside jar (application.properties/application.yml)
+
+ex. if we are having the application as jar file in a docker, then we might need to add few application properties
+that we need to override the ones already present in application.properties, so the properties outside the jar overrides them
+
+5.2 specifying which properties file to use
+
+- where all can we store the application.properties
+  -> config folder in main project app > inside main project app > in config folder in resorces > inside resources
+
+- Since we have so many options to put our properties file, how to tell spring which one to use
+  say we have a configFile.proeprties, we can do the below import for System.setProperty
+
+        @SpringBootApplication
+        public class Application{
+          public static void main(String[] args){
+
+            System.setProperty("spring.config.name","configFile")
+            ApplicationContext context = SpringApplication.run(Application.class, args);
+          }
+        }
+
+- we can also set the above file name as a command line argument as follows :
+
+              --spring.config.name=configFile
+
+to do this, we need to create a new run configuration, inside program arguments
+
+5.3 Defining YAML properties file:
+
+          server:
+            port: 8081
+            servlet:
+              context-path: /appname
+          spring:
+            datasource:
+              url: ...
+              username:root
+              name:testdb
+              password:pass
+            jpa:
+              show-sql: true
+              hibernate:
+                ddl2auto: update
+
+5.4 Using spring profiles
+allows us to run the application in different modes : we can distinguish properties based on modes
+we can use some properties (connection strings) in the development mode and some in the production mode
+
+we can have "development", "test" and "production" profiles
+
+=> 1. we can have profile specific Components
+
+    @Component
+    @Profile("development")
+    class ServiceImplDev implements Service{
+
+      @Override
+      public String toString(){
+        return "service in Dev";
+      }
+    }
+    --------------
+    @Component
+    @Profile("production")
+    class ServiceImplProd implements Service{
+
+      @Override
+      public String toString(){
+        return "service in Prod";
+      }
+    }
+
+=> 2. we can define profile specific properties
+(YAML file) : profile separator : ---
+
+    apiserver:
+      address: 192.168.0.100
+      port: 8080
+    ---
+    spring:
+      config:
+        activate:
+          on-profile: development  <==
+    api-server:
+      address: 127.0.0.1
+    ---
+    spring:
+      config:
+        activate:
+          on-profile: production  <==
+    api-server:
+      address: 192.168.2.120
+      port:8083
+
+=> How to tell which profile to use (in properties file)
+
+    spring.profiles.active = development
+
+5.5 Spring boot actuator
+includes features to monitor health metrics of the application
+
+it can provide info as:
+
+- http endpoints
+- JMX : java management extension
+- remote shell : ssh or telnet
+
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+  to enable all actuator endpoints :
+
+        management.endpoints.web.exposure.include=*
+
+        ------
+        in yaml
+
+        management:
+          endpoint:
+            health:
+              show-details: always
+          endpoints:
+            web:
+              exposure:
+                include:
+                - metrics
+                - info
+                - health
+
+  if we dont set the above property in properties file, then by default we get access to these two endpoints
+
+        /actuator/health
+        /actuator/info
+
+  to check the info provided by actuator, after adding the dependency go to
+
+        http://localhost:8081/appname/actuator/mappings
+        http://localhost:8081/oreillydevapp/actuator/health
+        http://localhost:8081/oreillydevapp/actuator/metrics
+        http://localhost:8081/oreillydevapp/actuator/info
+
 ## =========================================================================================
 
 ## +++++++++++++++++++++++++++++++++++++
