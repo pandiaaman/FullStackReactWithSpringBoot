@@ -1,5 +1,6 @@
 package com.pandiaaman.bak;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -7,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import com.pandiaaman.bak.components.TrialCheckComponent;
 import com.pandiaaman.bak.components.TrialObjectForConf;
 import com.pandiaaman.bak.components.TrialPrototypeComponent;
+import com.pandiaaman.bak.services.TrialEmployeeService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,12 +43,16 @@ public class OreillyFullStackAppBakApplication {
 		//getting object beans from configuration files
 		TrialObjectForConf ob = context.getBean("trialOb",TrialObjectForConf.class);
 		
+		TrialEmployeeService service = context.getBean(TrialEmployeeService.class);
+		
 		log.info("*************************************************");
 		log.info("bak app started");
 		log.info(myComponent.toString());
 		log.info("value from configration file : {} and {}", ob.getObvalOne(), ob.getObvalTwo());
 //		log.info(myComponent1.toString()); //called here but notice the counter on creation is only called once, means the object is only called once
-		
+		service.queryEntities();
+		service.useStandardRepoMethods();
+		service.useCustomQueryMethods();
 		log.info("*************************************************");
 	}
 
