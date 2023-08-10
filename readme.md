@@ -397,7 +397,8 @@ in java configuration, We use @Configuration and we use @Bean to annotate beans
         }
 
 5. Spring Boot techniques
-   ( dev :filters, interceptors, AOP, actuators, profiles, state management
+   ( dev :filters, interceptors, AOP, actuators, profiles, state management, advisors, error handlers, controllers, services, dto, repositories
+   API : GraphQL, Rest
    security : oauth2 odic jwt okta,
    testing : unit, regression, integration, mockito, testcontainers, selenium,
    message queues : kafka
@@ -569,6 +570,337 @@ it can provide info as:
         http://localhost:8081/oreillydevapp/actuator/health
         http://localhost:8081/oreillydevapp/actuator/metrics
         http://localhost:8081/oreillydevapp/actuator/info
+
+6 Spring Data JPA
+
+6.1 understanding Spring data
+
+- spring boot provides excellent support to connect with multiple types of databases, be it relational, or non relational
+- spring provides us the declarative transaction management, which means that we do not exclusively need to commit the
+  transactions, or rollback them in case of errors, spring does this automatically, we only need to annotate the method
+  with @Transactional
+- spring automatic connection management : acquires/releases connections automatically
+- spring provides us with CrudRepository and JPARepository, that provide us with object mapping abstractions
+  spring also gives us the dynamic query creation :: findByName, findByRegion.
+
+  6.2 JPA (Java persistence API) :: standard ORM (object relational mapping) API
+  => implemented by Hibernate library (goes well with spring)
+
+        entity class => java class with its fields mapped to the table
+        entity manager class in JPA => fetches/saves entities to the database
+        entity manager factory =>creates and configures an entity manager so it can connect to db
+
+        dependency required :
+          spring-boot-starter-data-jpa
+
+        (adds hibernate as well)
+
+  ***
+
+        <configuration>
+          <properties>
+            <...>
+          </properties>
+          <session-factory>
+            <property name="connection.url"></property>
+            <property name="connection.username"></property>
+            <property name="connection.password"></property>
+            <property name="show-sql">true</property>
+            <property name="hbm2ddl.auto">update</property>
+          </session-factory>
+        </configuration>
+
+  ***
+
+        Configuration cfg = new Configuration("hibconf.cfg.xml");
+        SessionFactory factory = cfg.buildSessionFacotry();
+        Session session = factory.openSession();
+        Transaction tx = session.beginTransaction();
+
+        String str = "from Student order by marks";
+        Query query = session.createQuery(str);
+        List result = query.list();
+
+        tx.close();
+
+using JDBC with normal java
+
+    class.forName("mysql..cj..");
+    Connection con = DriverManager.getConnection(url, username, password);
+    String query = "select * from ... where valOne=?, valTwo=?";
+    PreparedStatement pst = con.prepareStatement(query);
+    pst.setString(1,"adsf");
+    pst.setInt(2,23);
+    ResultSet rs = pst.executeQuery();
+    while(rs.hasNext()){
+      ..rs.getString("");
+    }
+
+in spring, we have JDBC template, that can be used with DataSource object
+
+    @Configuration
+    class Conf{
+      @Bean
+      DataSource ds(){
+        DataSource ds = new DataSource();
+        ds.setUrl();
+        ds.setUsername();
+        ds.setPassword();
+
+        return ds;
+      }
+
+      @Bean
+      JDBCTemplate temp(){
+        JDBCTemplate temp = new JDBCTemplate();
+        temp.setDataSource(ds());
+
+      }
+    }
+
+==> to enable SQL logging for debugging process
+
+    #Turn Statistics on and log SQL stmts
+
+    spring.jpa.show-sql=true
+    spring.jpa.properties.hibernate.format_sql=true
+
+    #If want to see very extensive logging
+    spring.jpa.properties.hibernate.generate_statistics=true
+    logging.level.org.hibernate.type=trace
+    logging.level.org.hibernate.stat=debug
+
+6.3 Defining JPA entity classes
+
+    @Entity
+    @Table(name="user_table")
+    class User{
+      @Id
+      @GeneratedValue(strategy= GenerationType.UUID)
+      private String userId;
+      @Column(name="user_name")
+      private String userName;
+      private int userAge;
+      private String userEmail;
+
+    }
+
+=> using H2 database with our projects :
+H2 is an in memory database which is completely empty when the application starts, it is alive while the app is up and
+removes all the data once we stop the application
+
+we need to seed data in the H2 database when the application starts so that we have some data to play around
+
+to see the h2 data in console and interact with it:
+
+    h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+h2 console :
+
+    http://localhost:8081/oreillydevapp/h2-console
+
+when we have to insert, update and delete data in JPA, we need to use @Transactional
+
+7. Working with Spring data repositories
+
+methods we can use with CrudRepository
+
+        public interface CrudRepository<T,ID>{
+
+          long count();
+          void delete(T entity);
+          void deleteAll();
+          void deleteById(ID id);
+          boolean existsById(ID id);
+          iterable<T> findAll();
+          Iterable<T> findAllById(Iterable<ID> ids);
+          T save();
+          Iterable<T> saveAll(Iterable<T> entities);
+        }
+
+PagingAndSortingRepository extends CrudRepository
+
+- JPARepository inherits from the PagingAndSortingRepository
+- MongoRepository inherits from the PagingAndSortingRepository too
+
+  //below we have some custom query methods in repository
+
+        List<TrialEmployee> findByEmployeeRegion(String region);
+
+        //we have JPQL below
+        @Query("select e from TrialEmployee e where e.employeeSalary >= ?1 and e.employeeSalary <= ?2")
+        List<TrialEmployee> findInSalaryRange(double from, double to);
+
+        Page<TrialEmployee> findByEmployeeSalaryGreaterThan(double salary, Pageable pageable);
+
+=> if we want the main application to look for repository in some other folder then we need
+
+      @SpringBootApplication
+      @EnableJPARepositories({"packageOne","packageTwo"})
+      public class Application{
+
+      }
+
+==> MongoDB (NOSQL database)
+
+there are several types of noSQL Db
+
+- MongoDB(Document based database) :: equivalent of row is a document, document needs not to have the same schema
+  (table is a collection in mongodb)
+- Redis (Key value store database : like a dictionary)
+- Cassandra (column oriented database) : data analytics become faster
+- Neo4j : Graph database
+
+MONGODB :
+
+- in mongodb the data is stored in bson
+
+        //to insert data in mongodb
+
+        db.collectionname.insertOne(
+          {name:"aman"",gender:"M",age:25}
+        )
+
+        //to insert many documents at once
+
+        db.collectionname.insertMany(
+          [
+            {name:"aman",gender:"M",age:25},
+            {name:"anisha",gender:"F",age:25,marks:20},
+            {name:"ayaz",gender:"M",age:25,favTeam:"India"}
+          ]
+        )
+
+        //to find documents in collection
+
+        db.collectionname.find()
+
+        //find document based on criteria => where clause
+
+        db.collectionname.find(
+          {name:"aman"}
+        )
+
+        //notations : : $or, $and, $gt, $lt
+
+        db.collectionname.find(
+          {
+            $or:[
+              {age : {$lt: 20} },
+              {salary: {$gt: 5000}}
+            ]
+          }
+        )
+
+        db.collectionname.find({
+          $and:[
+            {salary : {$lt : 3000}},
+            {salary : {$gt : 1000}}
+          ]
+        })
+
+=>mongodb by default uses 27017
+
+8. Rest Services
+
+8.1 WebFlux vs web
+=> we have two types of dependencies, web and webFlux(reactive), where web offers us a single request response pattern of rest services, webflux can be used if we want to send long streams of data back to the client after one single call
+
+=> Rest service is an endpoint in the application, to which the client can connect to
+(the methdos in rest service are mapped to a URL)
+data sent and received is generally JSON and can also be XML
+
+8.2 How the rest services work in spring MVC
+
+- We have dispatcher servlet (bean created by spring boot) -> this is the front controller, where each incoming request is first received, it then checks which controller is the request targetted to and moves the request there
+
+- Spring boot automatically converts the objects to JSON using the JSON serializer bean
+
+        @Controller/@RestController
+        @RequestMapping
+        @CrossOrigin
+        ---------
+        @GetMapping(value="/employees", produces={"application/json","application/xml"})
+        @PostMapping
+        @PutMapping
+        @DeleteMapping
+
+- We return data using ResponseEntity
+
+        @RestController
+        @RequestMapping(value="/api")
+        @CrossOrigin("http://localhost:3000")
+        class ControllerClass{
+
+          @Autowired
+          private ProductService service;
+
+          @GetMapping(value="/products/{id}, produces={"application/json","application/xml"})
+          public ResponseEntity<Product> getSingleProduct(@PathVariable("id") String id){
+            try{
+              Product p = service.getProductById(id);
+              return ResponseEntity.status(HttpStatus.OK).body(p);
+            }catch(Exeption e){
+              e.printStackTract();
+            }
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+          }
+        }
+
+=> passing parameters to the REST urls
+
+1.  first way is to send it as a path variable : http://localhost:8081/products/3
+2.  second way is to send it as an optional parameter in the url : http://localhost:8081/products?min=100
+
+        //for path variable
+
+        @GetMapping(value="/products/{id}")
+        public ResponseEntity<Product> getProductById(@PathVariable("id") String id){
+          ...
+        }
+
+        //for optional parameter in url
+
+        @GetMapping(value="/products")
+        public ResponseEntity<Product> getProductMoreThanPrice(@RequestParam(value="min", required=false, defaultValue="0.0") double min){
+          List<Product> productsLessThanMin = allProducts.stream().filter(p -> p.getPrice() > min).collect(Collectors.toList());
+        }
+
+=> POST request
+
+      @RestController
+      @RequestMapping("/api")
+      @CrossOrigin
+      class MainController{
+
+        @PostMappin(value = "/products",
+          produces = {"application/json","application/xml"},
+          consumes = {"application/json","application/xml"})
+        public ResponseEntity<Product> addProduct(@RequestBody Product product){
+          service.addProduct(product);
+          return ResponseEntity.status(HttpStatus.CREATED).body(product);
+        }
+      }
+
+=> PUT request : gets both the requestId and body
+
+8.3 Defining a REST client in spring :: RestTemplate
+
+we can create a separate project as a rest client, this is what happens in microservices, when we are communicating among multiple services
+To do this, we create a component that makes calls to a rest server, using a restTemplate class
+
+=> while sending and receiving, the objects are serialized and deserialized automatically by the restTemplate
+
+client has a separate spring boot application running on a different port than the server
+
+The Product class (the class being transferred) will be present in both the applications
+
+methods in RestTemplate
+
+      - GetForEntity
 
 ## =========================================================================================
 

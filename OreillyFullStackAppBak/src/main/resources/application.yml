@@ -2,26 +2,6 @@ server:
   port: 8081
   servlet:
     context-path: /oreillyapp
-spring:
-  profiles:
-    active: development
-  datasource:
-    name: fullstackdb
-    password: password
-    url: jdbc:postgresql://localhost:5432/oreillyfullstack
-    username: postgres
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
----
-spring:
-  config:
-    activate:
-      on-profile: development
-server:
-  servlet:
-    context-path: /oreillydevapp
 management:
   endpoint:
     health:
@@ -33,11 +13,74 @@ management:
         - metrics
         - info
         - health
+spring:
+  profiles:
+    active: test
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format-sql: true
+logging:
+  level:
+    org:
+      hibernate:
+        type: trace
+        stat: debug
 ---
+#development profile : using H2 database (in memory)
+#http://localhost:8081/oreillydevapp/actuator/metrics
+#create drop: we want to drop all tables in h2 when we stop application
+spring:
+  config:
+    activate:
+      on-profile: development
+  datasource:
+    url: jdbc:h2:mem:mydb;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+server:
+  servlet:
+    context-path: /oreillydevapp
+---
+#test profile : using postgres DB oreillyfullstacktest
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    name: fullstackdbtest
+    password: password
+    url: jdbc:postgresql://localhost:5432/oreillyfullstacktest
+    username: postgres
+server:
+  servlet:
+    context-path: /oreillytestapp
+
+---
+#production profile : using postgres DB oreillyfullstack
+#http://localhost:8083/oreillyprodapp
 spring:
   config:
     activate:
       on-profile: production
+  datasource:
+    name: fullstackdbprod
+    password: password
+    url: jdbc:postgresql://localhost:5432/oreillyfullstack
+    username: postgres
 server:
   port: 8083
   servlet:
