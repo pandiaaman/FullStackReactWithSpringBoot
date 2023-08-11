@@ -63,7 +63,7 @@ spring:
   datasource:
     name: fullstackdbtest
     password: password
-    url: jdbc:postgresql://localhost:5432/oreillyfullstacktest
+    url: jdbc:postgresql://localhost:5432/oreillyfullstack
     username: postgres
 server:
   servlet:
@@ -79,7 +79,7 @@ spring:
   datasource:
     name: fullstackdbprod
     password: password
-    url: jdbc:postgresql://localhost:5432/oreillyfullstack
+    url: jdbc:postgresql://localhost:5432/oreillyfullstackprod
     username: postgres
 server:
   port: 8083
