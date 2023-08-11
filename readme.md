@@ -818,15 +818,16 @@ data sent and received is generally JSON and can also be XML
 - We have dispatcher servlet (bean created by spring boot) -> this is the front controller, where each incoming request is first received, it then checks which controller is the request targetted to and moves the request there
 
 - Spring boot automatically converts the objects to JSON using the JSON serializer bean
+  we put the common objects to be serialized and deserialized in a common jar and link that jar to both the client and server applications
 
-        @Controller/@RestController
-        @RequestMapping
-        @CrossOrigin
-        ---------
-        @GetMapping(value="/employees", produces={"application/json","application/xml"})
-        @PostMapping
-        @PutMapping
-        @DeleteMapping
+          @Controller/@RestController
+          @RequestMapping
+          @CrossOrigin
+          ---------
+          @GetMapping(value="/employees", produces={"application/json","application/xml"})
+          @PostMapping
+          @PutMapping
+          @DeleteMapping
 
 - We return data using ResponseEntity
 
@@ -900,7 +901,9 @@ The Product class (the class being transferred) will be present in both the appl
 
 methods in RestTemplate
 
-      - GetForEntity
+      - GetForEntity(url, FetchedClass.class) : return ResponseEntity (status, body)
+      - GetForObject(url, FetchedClass.class) : return Object directly
+      - PostForEntity(url, toPostObject, PostedClass.class) : return ResponseEntity(status, body)
 
 ## =========================================================================================
 
