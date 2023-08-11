@@ -905,11 +905,215 @@ methods in RestTemplate
       - GetForObject(url, FetchedClass.class) : return Object directly
       - PostForEntity(url, toPostObject, PostedClass.class) : return ResponseEntity(status, body)
 
-## =========================================================================================
+---
 
-## +++++++++++++++++++++++++++++++++++++
+## FRONT END development
 
-PROGRESSION ON THE APPLICATION
+USing react, JS, TS, CSS
+
+9.1 Creating a React Front end
+
+- React is a lightweight client side library from facebook : we define components to render the portions of the UI
+
+=> we can use React native for mobile development
+
+we can create react element as follows :
+
+    <script>
+      const element = React.createElement(
+        'h1',
+        {'title' : 'my message'},
+        'Hello there'
+      )
+    </script>
+
+to render our react element
+
+    ReactDOM.render(
+      element,
+      document.getElementById('app-div')
+    )
+
+in React we use components, that provides us modularization, and is responsible for one part of the UI
+benefits of components :
+
+- each component is small and focused
+- easier to develop
+- potential reuse
+- easier to test (unit testing)
+
+=> components can be either class based or function based components
+
+    -class based components
+
+    class App extends React.Component{
+      render(){
+        return React.createElement(
+          'h1',
+        {'title' : 'my message'},
+        'Hello there'
+        )
+      }
+    }
+
+    -function based components
+
+    function App(){
+      return React.createElement(
+          'h1',
+        {'title' : 'my message'},
+        'Hello there'
+        )
+    }
+
+9.2 Javascript vs typescript
+=> TS is typed version of JS, JS is easy but TS is safer and better to code for the industry practice
+it helps us to check if we are assigning the correct value to the variables we are having in the system
+
+    Process to create the react application
+    ==> create react application :: npx create-react-app projectname --template typescript
+    ==> configure babel/typescript transpilers
+    ==> configure webpack to bundle our project (compresses files, faster output)
+
+to install node modules folder we need :
+
+    npm install
+
+folder structure of react app ::
+
+- public folder contains the main web entry point to the app
+- src folder contains the main code
+
+=> TSX file contains a combination of typescript and XML, XML is used to create the component like <App>
+
+    when we write : <App />
+    XML converts it : React.createElement(App, null, null) :: by Babel
+
+we can have separate css per component as well
+
+REACT COMPONENTS RETURN HTML
+
+9.3 npm build and serving on server
+
+=> what npm start does ::
+
+- transpiles TS/JSX/TSX into JS(ES5)
+- builds the application in memory
+  -starts a dev server on port 3000
+
+=> what npm build does ::
+
+- builds a minimized version of all files and put them in a build folder in the location : build/static/js, build/static/css and build/static/media
+
+-build folder contains a dramatically reduced footprint of the application, which we can copy to the production server
+
+        "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+        },
+
+=> How to run the app from the production server once the build is done
+
+- lets say we have tomcat as the server here, or we can also use node serve web server
+
+        to install node serve server
+
+          npm install -g serve
+
+- now to run the build folder on the server, we can simply say
+
+            serve -s build -l 8083
+
+            here s shows the loaction of the application in the current directory
+            and l shows the port
+
+  9.4 Closer look at the components :
+
+Return <React.Fragment> from the functions
+
+10. Consuming Rest API from React : Promises, fetch etc
+    => The easiest way to call a REST endpoint is via fetch()
+    => takes in REST URL and calls REST endpoint asynchronously
+    => returns a promise object immediately
+
+        const myPromise = new Promise(function(myresponse, myreject){
+          myresponse("looks good");
+        })
+
+        myPromise.then()
+
+        ---------for fetching url
+
+        const aFetchPromise = fetch(url);
+
+        aFetchPromise.then(response => {
+          //process response
+        })
+
+        static getReviews() : Promise<any>{
+          const url = "...";
+          const promiseOne = fetch(url).then(res => return res.json())
+        }
+
+10.2 Using async and await keywords
+when we call REST service via fetch, it returns promise object immediately, you can call then() to trigger a callback()
+
+Rather then having a series of .then functions, we can use await to make sure that the program is synchronous
+
+      less efficient way :
+
+      let promise1 = someAsyncFun1();
+
+      let promise2 = promise1.then(result => {
+        return someAsyncFun2();
+      })
+
+      let promise3 = promise2.then(result => {
+        return someAsyncFun3();
+      })
+
+      more efficient way using await
+
+      let result1 = await someAsyncFun1();
+      let result2 = await someAsyncFun2();
+      let result3 = await someAsyncFun3();
+
+10.3 Routing in react application
+
+we cover the components we need to route to with the <BrowserRouter> tags
+then we use <Routes> tag for the components
+<Route> is used to tell the specific path for the routing
+
+      <Route exact path="/" element={<Home />} />
+      <Route exact path="/allcourses" element={<Courses />} />
+      <Route
+              exact path="/viewcourse/:courseId"
+              element={<ViewCourse />}
+      />
+
+OR we can have routes mentioned as the switch case
+
+      <Switch>
+        <Route exact path="/"> <Home /> </Route>
+        <Route exact path="/allcourses" element={<Courses />} />
+        <Route
+                exact path="/viewcourse/:courseId"
+                element={<ViewCourse />}
+        />
+        <Route path="*">
+          <PageNotFound />
+        </Route>
+      </Switch>
+
+we can go to the selected Route using Link or NavLinl's to method
+
+      <Link to="/"> Home </Link>
+      <NavLink to="/products"> Products </NavLink>
+
+## PROGRESSION ON THE APPLICATION
+
 +++++++++++++++++++++++++++++++++++++++
 
 ---
